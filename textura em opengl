@@ -16,6 +16,9 @@ int highScore = 0;
 GLuint walpTextureID;
 GLuint paisaTextureID;
 GLuint CarroTextureID; 
+
+GLuint carTextures[4];
+
 int i, q;
 int score = 0;
 int screen = 0;
@@ -133,6 +136,10 @@ void loadTexture() {
     paisaTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\FUNDO.jpg");
     CarroTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
     
+    carTextures[0] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[1] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[2] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[3] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
 }
 
 void drawQUADS() {
@@ -187,13 +194,15 @@ void drawOVehicle() {
     {
    
   	glEnable(GL_TEXTURE_2D);
-   	glBindTexture(GL_TEXTURE_2D, CarroTextureID);
+   	glBindTexture(GL_TEXTURE_2D, carTextures[i]);
     glBegin(GL_QUADS);  
-   
-        glVertex2f(ovehicleX[i] - 18, ovehicleY[i] - 60);
-        glVertex2f(ovehicleX[i] - 18, ovehicleY[i] + 60);
-        glVertex2f(ovehicleX[i] + 18, ovehicleY[i] + 60);
-        glVertex2f(ovehicleX[i] + 18, ovehicleY[i] - 60);
+    
+		glColor3f(1,1 ,0);
+       glTexCoord2f(0.0, 0.0); glVertex2f(ovehicleX[i] - 18, ovehicleY[i] - 60);
+       glTexCoord2f(1.0, 0.0); glVertex2f(ovehicleX[i] - 18, ovehicleY[i] + 60);
+       glTexCoord2f(1.0, 1.0); glVertex2f(ovehicleX[i] + 18, ovehicleY[i] + 60);
+       glTexCoord2f(0.0, 1.0);glVertex2f(ovehicleX[i] + 18, ovehicleY[i] - 60);
+       
     glEnd();
  	
  	glDisable(GL_TEXTURE_2D);
