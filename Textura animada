@@ -1,0 +1,105 @@
+#include <GL/gl.h>
+#include <GL/glu.h>
+#include <GL/glut.h>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+GLuint textureID;
+float squareX = 0.0f;
+float squareY = 0.0f;
+
+// Variáveis para controlar as coordenadas do objeto
+float objectX = -1.0f;
+float objectY = -1.0f;
+
+// Direção do movimento
+float moveDirectionX = 0.005f;
+float moveDirectionY = 0.005f;
+
+GLuint loadTexture(const char* filename) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+    if (!data) {
+        printf("Erro ao carregar a textura.\n");
+        exit(1);
+    }
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    // Gere manualmente os níveis de mipmaps
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    stbi_image_free(data);
+
+    return textureID;
+}
+
+void setupCamera() {
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluPerspective(45.0, 800.0 / 600.0, 1.0, 100.0);
+
+    glMatrixMode(GL_MODELVIEW);
+    glLoadIdentity();
+    gluLookAt(0.0, 0.0, 5.0, 0.0, 0.0, 0.0, 0.0, 1.0, 0.0);
+}
+
+void display() {
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+
+    setupCamera();
+
+    // Atualize as coordenadas do objeto a cada quadro para criar animação
+    objectX += moveDirectionX;
+    objectY += moveDirectionY;
+
+    glBegin(GL_QUADS);
+    glTexCoord2f(0.0, 1.0); glVertex2f(objectX, objectY);
+    glTexCoord2f(1.0, 1.0); glVertex2f(objectX + 0.2, objectY);
+    glTexCoord2f(1.0, 0.0); glVertex2f(objectX + 0.2, objectY + 0.2);
+    glTexCoord2f(0.0, 0.0); glVertex2f(objectX, objectY + 0.2);
+    glEnd();
+
+    glDisable(GL_TEXTURE_2D);
+
+    glutSwapBuffers();
+    glutPostRedisplay();  // Chama o redisplay para continuar a animação
+}
+
+void update(int value) {
+    // Verifique se o objeto atingiu os limites da tela
+    if (objectX < -1.0f || objectX > 1.0f) {
+        moveDirectionX *= -1;  // Inverta a direção ao atingir os limites horizontais
+    }
+    if (objectY < -1.0f || objectY > 1.0f) {
+        moveDirectionY *= -1;  // Inverta a direção ao atingir os limites verticais
+    }
+
+    glutTimerFunc(16, update, 0);
+}
+
+int main(int argc, char** argv) {
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_DOUBLE | GLUT_RGB | GLUT_DEPTH);
+    glutInitWindowSize(800, 600);
+    glutCreateWindow("Exemplo de Textura");
+
+    glClearColor(0.0, 0.0, 0.0, 1.0);
+
+    // Carregue a textura e atribua a textureID
+    textureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\starship.jpg");
+    glutDisplayFunc(display);
+    glutTimerFunc(0, update, 0);  // Adiciona a função de atualização
+    glutMainLoop();
+
+    return 0;
+}
