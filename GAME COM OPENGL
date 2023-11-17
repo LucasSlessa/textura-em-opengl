@@ -262,16 +262,16 @@ void drawmodfinal(){
 	
 	  glBegin(GL_QUADS);  
        	 glColor3f(0.0,0.0 ,0.0);
-         glVertex2f(365,160);
-         glVertex2f(480,160);
+         glVertex2f(365,100);
+         glVertex2f(480,100);
          glVertex2f(480,292);
          glVertex2f(365,292);
     glEnd();
 	
 	glBegin(GL_QUADS);  
        	 glColor3f(0.5,0.5 ,0.3);
-         glVertex2f(368,163);
-         glVertex2f(478,163);
+         glVertex2f(368,103);
+         glVertex2f(478,103);
          glVertex2f(478,290);
          glVertex2f(368,290);
     glEnd();
@@ -288,6 +288,7 @@ void resetGame() {
     ovpos();
     updateHighScore();
 }
+
 
 void Specialkey(int key, int x, int y) {
     switch (key) {
@@ -436,9 +437,9 @@ void display() {
 		        
 		        
 		        
-		        if(score>1000){
+		        if(score>500){
 		        	 for (i = 0; i < 4; i++) {
-		            ovehicleY[i] = ovehicleY[i] - 10;
+		            ovehicleY[i] = ovehicleY[i] - 5;
 		        }
 		        movd = movd - 50;
 		        }
@@ -451,7 +452,7 @@ void display() {
 		        	
 		        
 		            glutSwapBuffers();
-		            updateHighScore();
+		            
 		            drawmodfinal();
 		            
 		            
@@ -460,10 +461,16 @@ void display() {
 		            drawText("Pressione R para Reiniciar", 370, 242);
 		            drawText("Pressione M para Voltar ao Menu", 370, 225);
 		              
-			        drawText("Score Final:", 370, 190);
+			        drawText("Score Final:", 370, 120);
 				    sprintf(buffer, "%d", score);
-				    drawTextNum(buffer, 6, 420, 190);
-				    
+				    drawTextNum(buffer, 6, 420, 120);
+				    if(score >= highScore){
+						   	glColor3f(1, 1, 1);
+						   	drawText("NOVO RECORDE", 390, 180);			
+									    	
+	          		}
+				   
+				    updateHighScore();
 		          
 		        }
 		        
