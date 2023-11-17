@@ -1,3 +1,4 @@
+
 #include <GL/glut.h>
 #include <iostream>
 #include <cstdlib>
@@ -5,6 +6,7 @@
 #include <cstdio>
 #define STB_IMAGE_IMPLEMENTATION
 #include "stb_image.h"
+
 
 
 float paisaTextureY = 0.0f;   // Coordenada Y da textura da paisagem
@@ -232,7 +234,49 @@ void drawOVehicle() {
     }
 
 }
+void drawmodscore(){
+	
+	  glBegin(GL_QUADS);  
+       	 glColor3f(0.0,0.0 ,0.0);
+         glVertex2f(413,423);
+         glVertex2f(492,423);
+         glVertex2f(492,492);
+         glVertex2f(413,492);
+    glEnd();
+	
+	glBegin(GL_QUADS);  
+       	 glColor3f(0.3,0.5 ,0.3);
+         glVertex2f(415,425);
+         glVertex2f(490,425);
+         glVertex2f(490,490);
+         glVertex2f(415,490);
+    glEnd();
+  
+	
+	
+}
 
+void drawmodfinal(){
+	
+	  glBegin(GL_QUADS);  
+       	 glColor3f(0.0,0.0 ,0.0);
+         glVertex2f(365,160);
+         glVertex2f(480,160);
+         glVertex2f(480,292);
+         glVertex2f(365,292);
+    glEnd();
+	
+	glBegin(GL_QUADS);  
+       	 glColor3f(0.5,0.5 ,0.3);
+         glVertex2f(368,163);
+         glVertex2f(478,163);
+         glVertex2f(478,290);
+         glVertex2f(368,290);
+    glEnd();
+  
+	
+	
+}
 void resetGame() {
     score = 0;
     collide = false;
@@ -286,6 +330,11 @@ void Normalkey(unsigned char key, int x, int y) {
     case 'R':
         resetGame();
         break;
+    case 'p':
+    case 'P':
+    	if (screen == 2 and collide == false)
+	        gamePaused = !gamePaused;  // Inverte o estado de pausa
+	        break;
     case 27:
         exit(0);
     }
@@ -332,50 +381,80 @@ void display() {
         drawText("Use BAIXO para Desacelerar", 80, 200);
         drawText("Pressione 2 para iniciar", 80, 150);
         glutSwapBuffers();
-    } else {
-        glClear(GL_COLOR_BUFFER_BIT);
-        drawPaisagem();
-        drawRoad();
-        drawDivider();
-        drawVehicle();
-        drawOVehicle();
-        movd = movd - 16;
-        if (movd < -60) {
-            movd = 0;
-        }
-	
-        score = score + 1;
+    } else { 
+    	if (gamePaused) {
+        // Adicione aqui qualquer coisa que você queira desenhar na tela enquanto o jogo estiver pausado.
+        // Por exemplo, uma mensagem de pausa.
         glColor3f(1, 1, 1);
-        drawText("Score:", 390, 455);
-        sprintf(buffer, "%d", score);
-        drawTextNum(buffer, 6, 420, 455);
-        
-        if(score>1000){
-        	 for (i = 0; i < 4; i++) {
-            ovehicleY[i] = ovehicleY[i] - 10;
-        }
-        movd = movd - 50;
-        }
-        
-        drawText("Recorde:", 390, 400);
-   		sprintf(buffer, "%d", highScore);
-    	drawTextNum(buffer, 6,420 , 400);
-
-        if (collide == true) {
-            glColor3f(1, 1, 1);
-            glutSwapBuffers();
-            updateHighScore();
-            drawText("Game Over", 200, 250);
-            drawText("Pressione R, para reiniciar", 180, 200);
-            drawText("Pressione M, para Voltar ao Menu", 180, 180);
-          
-        }
-
+        drawText("Jogo Pausado", 200, 250);
+        drawText("Pressione P para continuar", 180, 200);
         glutSwapBuffers();
-
-        for (q = 0; q <= 10000000; q++) {
-        }
-    }
+    	} else {
+    			glClear(GL_COLOR_BUFFER_BIT);
+    			
+		        drawPaisagem();
+		        drawRoad();
+		        drawDivider();
+		        drawVehicle();
+		        drawOVehicle();
+		        movd = movd - 16;
+		        if (movd < -60) {
+		            movd = 0;
+		        }
+		        drawmodscore();
+		        
+				if (collide == false){
+				
+					score = score + 1;
+				}
+				
+				
+		        glColor3f(1, 1, 1);
+		
+    		 	drawText("Use tecla P para Pausar", 40, 480);
+		        drawText("Score:", 420, 470);
+		        sprintf(buffer, "%d", score);
+		        drawTextNum(buffer, 6, 460, 470);
+		        
+		        
+		        
+		        if(score>1000){
+		        	 for (i = 0; i < 4; i++) {
+		            ovehicleY[i] = ovehicleY[i] - 10;
+		        }
+		        movd = movd - 50;
+		        }
+		        
+		        drawText("Recorde:", 420, 440);
+		   		sprintf(buffer, "%d", highScore);
+		    	drawTextNum(buffer, 6,460 , 440);
+		
+		        if (collide == true) {
+		        	
+		        
+		            glutSwapBuffers();
+		            updateHighScore();
+		            drawmodfinal();
+		            
+		            
+		            glColor3f(1, 1, 1);
+		            drawText("Game Over", 405, 272);
+		            drawText("Pressione R para Reiniciar", 370, 242);
+		            drawText("Pressione M para Voltar ao Menu", 370, 225);
+		              
+			        drawText("Score Final:", 370, 190);
+				    sprintf(buffer, "%d", score);
+				    drawTextNum(buffer, 6, 420, 190);
+				    
+		          
+		        }
+		        
+		
+		        glutSwapBuffers();
+		
+		        for (q = 0; q <= 10000000; q++) {
+		        }
+		}    }
 }
 
 int main(int argc, char** argv) {
