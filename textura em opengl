@@ -15,6 +15,7 @@ int highScore = 0;
 
 GLuint walpTextureID;
 GLuint paisaTextureID;
+GLuint CarroTextureID; 
 int i, q;
 int score = 0;
 int screen = 0;
@@ -130,6 +131,7 @@ GLuint loadTexture(const char* filename) {
 void loadTexture() {
     walpTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\POSTER.PNG");
     paisaTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\FUNDO.jpg");
+    CarroTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
     
 }
 
@@ -165,76 +167,38 @@ void drawPaisagem() {
 
 void drawVehicle() {
 	
-       glPointSize(10.0);
-    glBegin(GL_POINTS);//tire
-        glColor3f(0,0,0);                     
-        glVertex2f(vehicleX - 25, vehicleY + 16); 
-        glVertex2f(vehicleX + 25, vehicleY + 16); 
-        glVertex2f(vehicleX - 25, vehicleY - 16); 
-        glVertex2f(vehicleX + 25, vehicleY - 16);
-    glEnd();
-     
+   glEnable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, CarroTextureID);
     glBegin(GL_QUADS);  
-        glColor3f(1,0,0);//middle body
-        glVertex2f(vehicleX - 25, vehicleY + 20);
-        glVertex2f(vehicleX - 25, vehicleY - 20);
-        glVertex2f(vehicleX + 25, vehicleY - 20);
-        glVertex2f(vehicleX + 25, vehicleY + 20);
+       
+          glTexCoord2f(0.0, 0.0); glVertex2f(vehicleX - 18, vehicleY - 60);
+          glTexCoord2f(1.0, 0.0); glVertex2f(vehicleX - 18, vehicleY + 60);
+          glTexCoord2f(1.0, 1.0); glVertex2f(vehicleX + 18, vehicleY + 60);
+          glTexCoord2f(0.0, 1.0); glVertex2f(vehicleX + 18, vehicleY - 60);
     glEnd();
+    
+     glDisable(GL_TEXTURE_2D);
  
-    glBegin(GL_QUADS);//up body
-        glColor3f(0,0,1);
-        glVertex2f(vehicleX - 23, vehicleY + 20);
-        glVertex2f(vehicleX - 19, vehicleY + 40);
-        glVertex2f(vehicleX + 19, vehicleY + 40);
-        glVertex2f(vehicleX + 23, vehicleY + 20);
-    glEnd();
- 
-    glBegin(GL_QUADS);//down body
-        glColor3f(0,0,1);
-        glVertex2f(vehicleX - 23, vehicleY - 20);
-        glVertex2f(vehicleX - 19, vehicleY - 35);
-        glVertex2f(vehicleX + 19, vehicleY - 35);
-        glVertex2f(vehicleX + 23, vehicleY - 20);
-    glEnd();
 }
 
 void drawOVehicle() {   
+    
     for(i = 0; i < 4; i++)
     {
-    glPointSize(10.0);
-    glBegin(GL_POINTS);//tire
-        glColor3f(0,0,0);                     
-        glVertex2f(ovehicleX[i] - 25, ovehicleY[i] + 16); 
-        glVertex2f(ovehicleX[i] + 25, ovehicleY[i] + 16); 
-        glVertex2f(ovehicleX[i] - 25, ovehicleY[i] - 16); 
-        glVertex2f(ovehicleX[i] + 25, ovehicleY[i] - 16);
-    glEnd();
-     
+   
+  	glEnable(GL_TEXTURE_2D);
+   	glBindTexture(GL_TEXTURE_2D, CarroTextureID);
     glBegin(GL_QUADS);  
-        glColor3f(0.99609, 0.83984, 0);//middle body
-        glVertex2f(ovehicleX[i] - 25, ovehicleY[i] + 20);
-        glVertex2f(ovehicleX[i] - 25, ovehicleY[i] - 20);
-        glVertex2f(ovehicleX[i] + 25, ovehicleY[i] - 20);
-        glVertex2f(ovehicleX[i] + 25, ovehicleY[i] + 20);
+   
+        glVertex2f(ovehicleX[i] - 18, ovehicleY[i] - 60);
+        glVertex2f(ovehicleX[i] - 18, ovehicleY[i] + 60);
+        glVertex2f(ovehicleX[i] + 18, ovehicleY[i] + 60);
+        glVertex2f(ovehicleX[i] + 18, ovehicleY[i] - 60);
     glEnd();
- 
-    glBegin(GL_QUADS);//up body
-        glColor3f(0,1,0);
-        glVertex2f(ovehicleX[i] - 23, ovehicleY[i] + 20);
-        glVertex2f(ovehicleX[i] - 19, ovehicleY[i] + 40);
-        glVertex2f(ovehicleX[i] + 19, ovehicleY[i] + 40);
-        glVertex2f(ovehicleX[i] + 23, ovehicleY[i] + 20);
-    glEnd();
- 
-    glBegin(GL_QUADS);//down body
-        glColor3f(0,1,0);
-        glVertex2f(ovehicleX[i] - 23, ovehicleY[i] - 20);
-        glVertex2f(ovehicleX[i] - 19, ovehicleY[i] - 35);
-        glVertex2f(ovehicleX[i] + 19, ovehicleY[i] - 35);
-        glVertex2f(ovehicleX[i] + 23, ovehicleY[i] - 20);
-    glEnd();
-     
+ 	
+ 	glDisable(GL_TEXTURE_2D);
+	
+    
     ovehicleY[i] = ovehicleY[i] - 8; 
      
     if(ovehicleY[i] > vehicleY - 25 - 25 && ovehicleY[i] < vehicleY + 25 + 25 && ovehicleX[i] == vehicleX)
@@ -247,6 +211,7 @@ void drawOVehicle() {
         if(rand() % 2 == 0)
         {
             ovehicleX[i] = 200;
+            
         }
         else
         {
@@ -254,7 +219,9 @@ void drawOVehicle() {
         }
         ovehicleY[i] = 800; 
     } 
+     
     }
+
 }
 
 void resetGame() {
@@ -367,12 +334,19 @@ void display() {
         if (movd < -60) {
             movd = 0;
         }
-
+	
         score = score + 1;
         glColor3f(1, 1, 1);
         drawText("Score:", 390, 455);
         sprintf(buffer, "%d", score);
         drawTextNum(buffer, 6, 420, 455);
+        
+        if(score>1000){
+        	 for (i = 0; i < 4; i++) {
+            ovehicleY[i] = ovehicleY[i] - 10;
+        }
+        movd = movd - 50;
+        }
         
         drawText("Recorde:", 390, 400);
    		sprintf(buffer, "%d", highScore);
@@ -385,7 +359,7 @@ void display() {
             drawText("Game Over", 200, 250);
             drawText("Pressione R, para reiniciar", 180, 200);
             drawText("Pressione M, para Voltar ao Menu", 180, 180);
-          //  drawText("Precione M, para ir ao Menu", 180, 150);
+          
         }
 
         glutSwapBuffers();
