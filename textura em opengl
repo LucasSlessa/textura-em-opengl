@@ -8,7 +8,7 @@
 
 
 float paisaTextureY = 0.0f;   // Coordenada Y da textura da paisagem
-float paisaTextureSpeed = 0.005f;  // Velocidade de movimento da paisagem
+float paisaTextureSpeed = 0.007f;  // Velocidade de movimento da paisagem
 
 int highScore = 0;
 
@@ -87,10 +87,10 @@ void ovpos() {
 void drawRoad() {
     glBegin(GL_QUADS);
     glColor3f(0, 0, 0);
-    glVertex2f(250 - 100, 500);
-    glVertex2f(250 - 100, 0);
-    glVertex2f(250 + 100, 0);
-    glVertex2f(250 + 100, 500);
+    glVertex2f(270 - 100, 500);
+    glVertex2f(270 - 100, 0);
+    glVertex2f(228 + 100, 0);
+    glVertex2f(228 + 100, 500);
     glEnd();
 }
 
