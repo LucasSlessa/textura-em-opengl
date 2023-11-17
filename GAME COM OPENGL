@@ -22,7 +22,9 @@ GLuint CarroTextureID;
 GLuint carTextures[4];
 
 int i, q;
+int a = 60;
 int score = 0;
+int time = 0;
 int screen = 0;
 bool collide = false;
 char buffer[10];
@@ -238,16 +240,16 @@ void drawmodscore(){
 	
 	  glBegin(GL_QUADS);  
        	 glColor3f(0.0,0.0 ,0.0);
-         glVertex2f(413,423);
-         glVertex2f(492,423);
+         glVertex2f(413,400);
+         glVertex2f(492,400);
          glVertex2f(492,492);
          glVertex2f(413,492);
     glEnd();
 	
 	glBegin(GL_QUADS);  
        	 glColor3f(0.3,0.5 ,0.3);
-         glVertex2f(415,425);
-         glVertex2f(490,425);
+         glVertex2f(415,403);
+         glVertex2f(490,403);
          glVertex2f(490,490);
          glVertex2f(415,490);
     glEnd();
@@ -279,6 +281,7 @@ void drawmodfinal(){
 }
 void resetGame() {
     score = 0;
+    time = 0;
     collide = false;
     vehicleX = 200;
     vehicleY = 70;
@@ -329,6 +332,7 @@ void Normalkey(unsigned char key, int x, int y) {
     case 'r':
     case 'R':
         resetGame();
+        a = 60;
         break;
     case 'p':
     case 'P':
@@ -383,8 +387,7 @@ void display() {
         glutSwapBuffers();
     } else { 
     	if (gamePaused) {
-        // Adicione aqui qualquer coisa que você queira desenhar na tela enquanto o jogo estiver pausado.
-        // Por exemplo, uma mensagem de pausa.
+       
         glColor3f(1, 1, 1);
         drawText("Jogo Pausado", 200, 250);
         drawText("Pressione P para continuar", 180, 200);
@@ -406,6 +409,15 @@ void display() {
 				if (collide == false){
 				
 					score = score + 1;
+					
+					if(score ==  a){
+						time = time  + 1;
+						
+						a = a + 60;
+						
+					}
+	
+					
 				}
 				
 				
@@ -415,6 +427,12 @@ void display() {
 		        drawText("Score:", 420, 470);
 		        sprintf(buffer, "%d", score);
 		        drawTextNum(buffer, 6, 460, 470);
+		        
+		        glColor3f(1, 1, 1);
+		
+		        drawText("Tempo:", 420, 410);
+		        sprintf(buffer, "%d", time);
+		        drawTextNum(buffer, 6, 460, 410);
 		        
 		        
 		        
