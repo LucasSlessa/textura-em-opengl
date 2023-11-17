@@ -304,6 +304,7 @@ void Normalkey(unsigned char key, int x, int y) {
     case 'm':
         if (screen == 2)
             screen = 1;
+            resetGame();
         break;
     case 'r':
     case 'R':
@@ -339,8 +340,8 @@ void display() {
         drawQUADS();
         
         glColor3f(1, 1, 1);
-        drawText("WELCOME", 80, 340);
-        drawText("PLAYER", 80, 320);
+        drawText("Bem Vindo", 80, 340);
+        drawText("PILOTO", 80, 320);
         drawText("Pressione 1 para Continuar", 80, 280);
         
         
@@ -349,9 +350,10 @@ void display() {
         glClear(GL_COLOR_BUFFER_BIT);
         drawQUADS();
         glColor3f(1, 1, 1);
-        drawText("Use tecla UP para acelerar", 80, 290);
-        drawText("Use LEFT para mover a esquerda", 80, 270);
-        drawText("Use RIGHT para mover a direita", 80, 250);
+        drawText("Use tecla CIMA para Acelerar", 80, 290);
+        drawText("Use ESQUERDA para mover a Esquerda", 80, 270);
+        drawText("Use DIREITA para mover a Direita", 80, 250);
+        drawText("Use BAIXO para Desacelerar", 80, 200);
         drawText("Pressione 2 para iniciar", 80, 150);
         glutSwapBuffers();
     } else {
@@ -381,7 +383,8 @@ void display() {
             glutSwapBuffers();
             updateHighScore();
             drawText("Game Over", 200, 250);
-            drawText("Precione R, para reiniciar", 180, 200);
+            drawText("Pressione R, para reiniciar", 180, 200);
+            drawText("Pressione M, para Voltar ao Menu", 180, 180);
           //  drawText("Precione M, para ir ao Menu", 180, 150);
         }
 
