@@ -1,0 +1,519 @@
+
+#include <GL/glut.h>
+#include <stdlib.h>
+#include <iostream>
+#include <cstdlib>
+#include <cstring>
+#include <cstdio>
+#define STB_IMAGE_IMPLEMENTATION
+#include "stb_image.h"
+
+
+
+float paisaTextureY = 0.0f;   // Coordenada Y da textura da paisagem
+float paisaTextureSpeed = 0.007f;  // Velocidade de movimento da paisagem
+
+int highScore = 0;
+
+
+GLuint walpTextureID;
+GLuint paisaTextureID;
+GLuint CarroTextureID; 
+
+GLuint carTextures[4];
+  	float z;
+   	float x;
+   	float y;
+   	
+int i, q;
+int a = 60;
+int score = 0;
+int time = 0;
+int screen = 0;
+bool collide = false;
+char buffer[10];
+bool gamePaused = false;
+int vehicleX = 200, vehicleY = 70;
+int ovehicleX[4], ovehicleY[4];
+int divx = 250, divy = 5, movd;
+
+
+void updatePaisaTextureCoordinates() {
+    paisaTextureY -= paisaTextureSpeed;
+    if (paisaTextureY < 0.0f) {
+        // Reset das coordenadas quando a textura atinge a parte inferior
+        paisaTextureY = 1.0f;
+    }
+}
+
+void updateHighScore() {
+    if (score > highScore) {
+        highScore = score;
+    }
+}
+
+
+
+void drawText(const char ch[], int xpos, int ypos) {
+    int numofchar = strlen(ch);
+    glLoadIdentity();
+    glRasterPos2f(xpos, ypos);
+    for (i = 0; i <= numofchar - 1; i++) {
+        glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ch[i]);
+    }
+}
+
+void drawTextNum(const char ch[], int numtext, int xpos, int ypos) {
+    int len;
+    int k;
+    k = 0;
+    len = numtext - strlen(ch);
+    glLoadIdentity();
+    glRasterPos2f(xpos, ypos);
+    for (i = 0; i <= numtext - 1; i++) {
+        if (i < len)
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, '0');
+        else {
+            glutBitmapCharacter(GLUT_BITMAP_HELVETICA_18, ch[k]);
+            k++;
+        }
+    }
+}
+
+void ovpos() {
+    glClearColor(0.4, 0.2, 0.8, 0);
+    for (i = 0; i < 4; i++) {
+        if (rand() % 2 == 0) {
+            ovehicleX[i] = 200;
+        } else {
+            ovehicleX[i] = 300;
+        }
+        ovehicleY[i] = 1000 - i * 180;
+    }
+}
+
+void drawRoad() {
+    glBegin(GL_QUADS);
+    glColor3f(0, 0, 0);
+    glVertex2f(270 - 100, 500);
+    glVertex2f(270 - 100, 0);
+    glVertex2f(228 + 100, 0);
+    glVertex2f(228 + 100, 500);
+    glEnd();
+}
+
+void drawDivider() {
+    glLoadIdentity();
+    glTranslatef(0, movd, 0);
+    for (i = 1; i <= 10; i++) {
+        glColor3f(1, 1, 1);
+        glBegin(GL_QUADS);
+        glVertex2f(divx - 5, divy * 15 * i + 18);
+        glVertex2f(divx - 5, divy * 15 * i - 18);
+        glVertex2f(divx + 5, divy * 15 * i - 18);
+        glVertex2f(divx + 5, divy * 15 * i + 18);
+        glEnd();
+    }
+    glLoadIdentity();
+}
+
+GLuint loadTexture(const char* filename) {
+    int width, height, channels;
+    unsigned char* data = stbi_load(filename, &width, &height, &channels, 0);
+
+    if (!data) {
+        printf("Erro ao carregar a textura.\n");
+        exit(1);
+    }
+
+    GLuint textureID;
+    glGenTextures(1, &textureID);
+    glBindTexture(GL_TEXTURE_2D, textureID);
+    glTexImage2D(GL_TEXTURE_2D, 0, GL_RGB, width, height, 0, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER, GL_LINEAR_MIPMAP_LINEAR);
+    glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER, GL_LINEAR);
+    gluBuild2DMipmaps(GL_TEXTURE_2D, 3, width, height, GL_RGB, GL_UNSIGNED_BYTE, data);
+
+    stbi_image_free(data);
+
+    return textureID;
+}
+void loadTexture() {
+    walpTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\POSTER.PNG");
+    paisaTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\FUNDO.jpg");
+    CarroTextureID = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    
+    carTextures[0] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[1] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[2] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+    carTextures[3] = loadTexture("C:\\Users\\lucas\\OneDrive\\Música\\Imagens\\modelcar.jpg");
+}
+
+void drawQUADS() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, walpTextureID);
+
+    glBegin(GL_QUADS);
+    
+    glTexCoord2f(0.0, 1.0); glVertex2f(0,0);
+    glTexCoord2f(1.0, 1.0); glVertex2f(500,0);
+    glTexCoord2f(1.0, 0.0); glVertex2f(500, 500);
+    glTexCoord2f(0.0, 0.0); glVertex2f(0, 500);
+    glEnd();
+   
+    glDisable(GL_TEXTURE_2D);
+}
+void drawPaisagem() {
+    glEnable(GL_TEXTURE_2D);
+    glBindTexture(GL_TEXTURE_2D, paisaTextureID);
+
+    glBegin(GL_QUADS);
+   
+    
+    glTexCoord2f(0.0, paisaTextureY + 1.0); glVertex2f(0,0);
+    glTexCoord2f(1.0, paisaTextureY + 1.0); glVertex2f(500,0);
+    glTexCoord2f(1.0, paisaTextureY); glVertex2f(500, 500);
+    glTexCoord2f(0.0, paisaTextureY); glVertex2f(0, 500);
+    glEnd();
+   
+    glDisable(GL_TEXTURE_2D);
+}
+
+
+void drawVehicle() {
+	
+   glEnable(GL_TEXTURE_2D);
+   glBindTexture(GL_TEXTURE_2D, CarroTextureID);
+   glBegin(GL_QUADS);  
+       
+          glTexCoord2f(0.0, 0.0); glVertex2f(vehicleX - 18, vehicleY - 60);
+          glTexCoord2f(1.0, 0.0); glVertex2f(vehicleX - 18, vehicleY + 60);
+          glTexCoord2f(1.0, 1.0); glVertex2f(vehicleX + 18, vehicleY + 60);
+          glTexCoord2f(0.0, 1.0); glVertex2f(vehicleX + 18, vehicleY - 60);
+    glEnd();
+    
+    glDisable(GL_TEXTURE_2D);
+ 
+}
+
+void drawOVehicle() {   
+    
+    for(i = 0; i < 4; i++)
+    {
+ 	z = z+0.2;
+ 	y = y+0.2;
+   	x = x+0.2;
+  	glEnable(GL_TEXTURE_2D);
+   	glBindTexture(GL_TEXTURE_2D, carTextures[i]);
+   	
+   	glColor3f(x,y,z);
+    glBegin(GL_QUADS); 
+       glTexCoord2f(0.0, 0.0); glVertex2f(ovehicleX[i] - 18, ovehicleY[i] - 60);
+       glTexCoord2f(1.0, 0.0); glVertex2f(ovehicleX[i] - 18, ovehicleY[i] + 60);
+       glTexCoord2f(1.0, 1.0); glVertex2f(ovehicleX[i] + 18, ovehicleY[i] + 60);
+       glTexCoord2f(0.0, 1.0); glVertex2f(ovehicleX[i] + 18, ovehicleY[i] - 60);
+       
+    glEnd();
+	
+ 	
+ 	glDisable(GL_TEXTURE_2D);
+	
+    
+    ovehicleY[i] = ovehicleY[i] - 8; 
+     
+    if(ovehicleY[i] > vehicleY - 25 - 25 && ovehicleY[i] < vehicleY + 25 + 25 && ovehicleX[i] == vehicleX)
+    {
+        collide = true;
+    }
+     
+    if(ovehicleY[i] < -25)
+    { 
+        if(rand() % 2 == 0)
+        {
+            ovehicleX[i] = 200;
+            
+        }
+        else
+        {
+            ovehicleX[i] = 300;
+        }
+        ovehicleY[i] = 800; 
+    } 
+     
+    }
+
+}
+void drawmodscore(){
+	
+	glBegin(GL_QUADS);  
+       	 glColor3f(0.0,0.0 ,0.0);
+         glVertex2f(413,400);
+         glVertex2f(492,400);
+         glVertex2f(492,492);
+         glVertex2f(413,492);
+    glEnd();
+	
+	glBegin(GL_QUADS);  
+       	 glColor3f(0.3,0.5 ,0.3);
+         glVertex2f(415,403);
+         glVertex2f(490,403);
+         glVertex2f(490,490);
+         glVertex2f(415,490);
+    glEnd();
+  
+	
+	
+}
+
+void drawmodfinal(){
+	
+	  glBegin(GL_QUADS);  
+       	 glColor3f(0.0,0.0 ,0.0);
+         glVertex2f(365,100);
+         glVertex2f(480,100);
+         glVertex2f(480,292);
+         glVertex2f(365,292);
+    glEnd();
+	
+	glBegin(GL_QUADS);  
+       	 glColor3f(0.5,0.5 ,0.3);
+         glVertex2f(368,103);
+         glVertex2f(478,103);
+         glVertex2f(478,290);
+         glVertex2f(368,290);
+    glEnd();
+  
+	
+	
+}
+void resetGame() {
+    score = 0;
+    time = 0;
+    collide = false;
+    vehicleX = 200;
+    vehicleY = 70;
+    ovpos();
+    updateHighScore();
+}
+
+
+void Specialkey(int key, int x, int y) {
+    switch (key) {
+    case GLUT_KEY_UP:
+        for (i = 0; i < 4; i++) {
+            ovehicleY[i] = ovehicleY[i] - 10;
+        }
+        movd = movd - 20;
+        break;
+    case GLUT_KEY_DOWN:
+        for (i = 0; i < 4; i++) {
+            ovehicleY[i] = ovehicleY[i] + 10;
+        }
+        movd = movd + 20;
+        break;
+    case GLUT_KEY_LEFT:
+        vehicleX = 200;
+        break;
+    case GLUT_KEY_RIGHT:
+        vehicleX = 300;
+        break;
+    }
+
+    glutPostRedisplay();
+}
+
+void Normalkey(unsigned char key, int x, int y) {
+    switch (key) {
+    case '1':
+        if (screen == 0)
+            screen = 1;
+        break;
+    case '2':
+        if (screen == 1)
+            screen = 2;
+        break;
+    case 'm':
+        if (screen == 2)
+            screen = 1;
+            resetGame();
+        break;
+    case 'r':
+    case 'R':
+        resetGame();
+        a = 60;
+        break;
+    case 'p':
+    case 'P':
+    	if (screen == 2 and collide == false)
+	        gamePaused = !gamePaused;  // Inverte o estado de pausa
+	        break;
+    case 27:
+        exit(0);
+    }
+
+    glutPostRedisplay();
+}
+void init() {
+	
+	 
+    glEnable(GL_TEXTURE_2D);
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    glMatrixMode(GL_PROJECTION);
+    glLoadIdentity();
+    gluOrtho2D(0, 500, 0, 500);
+
+    glMatrixMode(GL_MODELVIEW);
+}
+
+void display() {
+	
+	
+
+	updatePaisaTextureCoordinates();
+	
+	
+    if (screen == 0) {
+        glClear(GL_COLOR_BUFFER_BIT);
+        drawQUADS();
+        
+        glColor3f(1, 1, 1);
+        drawText("Bem Vindo", 80, 340);
+        drawText("Competidor", 80, 320);
+        drawText("Pressione 1 para Continuar", 80, 280);
+        
+        
+        glutSwapBuffers();
+    } else if (screen == 1) {
+        glClear(GL_COLOR_BUFFER_BIT);
+        drawQUADS();
+        glColor3f(1, 1, 1);
+        drawText("Use tecla CIMA para Acelerar", 80, 290);
+        drawText("Use ESQUERDA para mover a Esquerda", 80, 270);
+        drawText("Use DIREITA para mover a Direita", 80, 250);
+        drawText("Use BAIXO para Desacelerar", 80, 230);
+        drawText("Pressione 2 para iniciar", 80, 150);
+        glutSwapBuffers();
+    } else { 
+    	if (gamePaused) {
+       
+        glColor3f(1, 1, 1);
+        drawText("Jogo Pausado", 200, 250);
+        drawText("Pressione P para continuar", 180, 200);
+        glutSwapBuffers();
+    	} else {
+    			glClear(GL_COLOR_BUFFER_BIT);
+    			
+		        drawPaisagem();
+		        drawRoad();
+		        drawDivider();
+		        drawVehicle();
+		        drawOVehicle();
+		        movd = movd - 16;
+		        if (movd < -60) {
+		            movd = 0;
+		        }
+		        drawmodscore();
+		        
+				if (collide == false){
+				
+					score = score + 1;
+					
+					if(score ==  a){
+						time = time  + 1;
+						
+						a = a + 60;
+						
+					}
+	
+					
+				}
+				
+				
+		        glColor3f(1, 1, 1);
+		
+    		 	drawText("Use tecla P para Pausar", 40, 480);
+		        drawText("Score:", 420, 470);
+		        sprintf(buffer, "%d", score);
+		        drawTextNum(buffer, 6, 460, 470);
+		        
+		        glColor3f(1, 1, 1);
+		
+		        drawText("Tempo:", 420, 410);
+		        sprintf(buffer, "%d", time);
+		        drawTextNum(buffer, 6, 460, 410);
+		        
+		        
+		        
+		        if(score>2000){
+		        	 for (i = 0; i < 4; i++) {
+		            ovehicleY[i] = ovehicleY[i] - 5;
+		        }
+		        movd = movd - 50;
+		        }
+		        
+		        drawText("Recorde:", 420, 440);
+		   		sprintf(buffer, "%d", highScore);
+		    	drawTextNum(buffer, 6,460 , 440);
+		
+		        if (collide == true) {
+		        	
+		        
+		            glutSwapBuffers();
+		            
+		            drawmodfinal();
+		            
+		            
+		            glColor3f(1, 1, 1);
+		            drawText("Game Over", 405, 272);
+		            drawText("Pressione R para Reiniciar", 370, 242);
+		            drawText("Pressione M para Voltar ao Menu", 370, 225);
+		              
+			        drawText("Score Final:", 370, 120);
+				    sprintf(buffer, "%d", score);
+				    drawTextNum(buffer, 6, 420, 120);
+				    if(score >= highScore){
+						   	glColor3f(1, 1, 1);
+						   	drawText("NOVO RECORDE", 390, 180);			
+									    	
+	          		}
+				   
+				    updateHighScore();
+		          
+		        }
+		        
+		
+		        glutSwapBuffers();
+		
+		        for (q = 0; q <= 10000000; q++) {
+		        }
+		}    }
+		
+}
+
+
+
+int main(int argc, char** argv) {
+	
+		if(z==0){
+		z+=1;
+		system("\"C:\\Users\\lucas\\OneDrive\\Área de Trabalho\\Ryder.bat\"");
+		
+	}
+    glutInit(&argc, argv);
+    glutInitDisplayMode(GLUT_RGB | GLUT_DOUBLE);
+    glutInitWindowPosition(0, 0);
+    glutInitWindowSize(1980, 1080);
+    glutCreateWindow("2D Car Racing game");
+    ovpos();
+    init();
+    loadTexture();
+    glutDisplayFunc(display);
+    glutSpecialFunc(Specialkey);
+    glutKeyboardFunc(Normalkey);
+    glutIdleFunc(display);
+    glutMainLoop();
+    return 0;
+}
